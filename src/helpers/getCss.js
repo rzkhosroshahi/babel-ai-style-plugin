@@ -14,7 +14,7 @@ const GetCss = async (style, className) => {
           role: 'user',
           content: `turns this to a css with this className: ${className}. give me just a css not any further explanation: ${style}`
         }]
-      })g
+      })
     })
     const res = await data.json()
     return res?.choices[0]?.message?.content
