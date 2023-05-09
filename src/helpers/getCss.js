@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const HttpCall = async (style) => {
+const GetCss = async (style) => {
   try {
     const data = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -23,4 +23,4 @@ const HttpCall = async (style) => {
   }
 }
 
-module.exports = HttpCall
+module.exports = GetCss
