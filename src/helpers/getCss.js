@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const HttpCall = async (style) => {
+const GetCss = async (style, className) => {
   try {
     const data = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -12,7 +12,7 @@ const HttpCall = async (style) => {
         model: 'gpt-3.5-turbo',
         messages: [{
           role: 'user',
-          content: `turns this to a css give me just a css not any further explanation: ${style}`
+          content: `turns this to a css with this className: ${className}. give me just a css not any further explanation: ${style}`
         }]
       })
     })
@@ -23,4 +23,4 @@ const HttpCall = async (style) => {
   }
 }
 
-module.exports = HttpCall
+module.exports = GetCss
