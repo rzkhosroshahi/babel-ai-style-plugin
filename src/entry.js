@@ -1,4 +1,4 @@
-import { aiCss } from './module';
+import { aiCss } from './aiCss';
 
 const App = () => {
   const style = aiCss(`
