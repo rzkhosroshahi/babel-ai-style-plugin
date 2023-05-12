@@ -9,14 +9,4 @@ find these kinda styles from any js file and replace with nothing then turns it 
 
 ![image](./client/doc.png)
 
-``` jsx
-const App = () => {
-  const style = aiCss(`
-    an element with good contrast of light blue
-  `)
-  return <div className={style}>Hey There 👋🏻</div>
-}
-
-```
-
 
