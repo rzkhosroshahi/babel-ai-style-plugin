@@ -7,7 +7,7 @@ module.exports = function (babel) {
   const t = babel.types
   return {
     pre() {
-      this.className = shortid()
+      this.cache = new Map()
     },
     visitor: {
       ImportDeclaration(path) {
@@ -15,33 +15,54 @@ module.exports = function (babel) {
           path.remove();
         }
       },
-      CallExpression(path) {
-        if (path.node.callee.name !== 'aiCss') {
+      VariableDeclarator(path) {
+        if (path.node.init.type !== 'CallExpression' ||
+            path.node.init.callee?.name !== 'aiCss'
+        ) {
           return
         }
-        const className = this.className
+
+        const identifierName = path.node.id.name
+        const className = `ai-${shortid()}`
         path.traverse({
-          TemplateLiteral(path) {
+          TemplateLiteral: function (path) {
             if (path.node.quasis && path.node.quasis.length) {
               const description = path.node.quasis[0].value.raw;
-              GetCss(description, className)
-                  .then((style) => {
-                    fs.writeFileSync('./client/style.css', style)
-                  })
+              this.cache.set(identifierName, { description, className })
             }
-          },
+          }.bind(this),
         })
         path.remove();
       },
       JSXAttribute(path) {
-        const className = this.className
-
-        path.traverse({
-          Identifier(path) {
-            path.replaceWith(t.stringLiteral(className))
-          }
+        this.cache.forEach(() => {
+          path.traverse({
+            Identifier: function (path) {
+              if (this.cache.has(path.node.name)) {
+                const { className } = this.cache.get(path.node.name)
+                path.replaceWith(t.stringLiteral(className))
+              }
+            }.bind(this)
+          })
         })
       },
     },
+    post() {
+      buildCssFile(this.cache)
+    }
   }
+}
+
+function buildCssFile(cache) {
+  let styles = ''
+  async function turnsDescriptionsToCss() {
+    await Promise.all(Array.from(cache).map(async ([,value]) => {
+      const style = await GetCss(value.description, value.className)
+      styles += `\n ${style}`;
+    }));
+  }
+
+  turnsDescriptionsToCss().then(() => {
+    fs.writeFileSync('./client/style.css', styles)
+  })
 }
