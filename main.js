@@ -25,24 +25,24 @@ module.exports = function (babel) {
         const identifierName = path.node.id.name
         const className = `ai-${shortid()}`
         path.traverse({
-          TemplateLiteral: function (path) {
+          TemplateLiteral: (path) => {
             if (path.node.quasis && path.node.quasis.length) {
               const description = path.node.quasis[0].value.raw;
               this.cache.set(identifierName, { description, className })
             }
-          }.bind(this),
+          },
         })
         path.remove();
       },
       JSXAttribute(path) {
         this.cache.forEach(() => {
           path.traverse({
-            Identifier: function (path) {
+            Identifier: (path) => {
               if (this.cache.has(path.node.name)) {
                 const { className } = this.cache.get(path.node.name)
                 path.replaceWith(t.stringLiteral(className))
               }
-            }.bind(this)
+            }
           })
         })
       },
